@@ -1,4 +1,4 @@
--- runghc 01.hs < 01.in.txt
+-- runghc 01-1.hs < 01.in.txt
 
 {-
 --- Day 1: Historian Hysteria ---
