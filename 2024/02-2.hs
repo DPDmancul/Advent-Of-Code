@@ -24,7 +24,6 @@ Update your analysis by handling situations where the Problem Dampener can remov
 -}
 
 type Report = [Int]
-type Deltas = [Int]
 
 isSafeStrict :: Report -> Bool
 isSafeStrict xs =
