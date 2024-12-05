@@ -30,7 +30,7 @@ import Data.Bits (Bits (xor))
 import Data.Maybe
 
 parse :: String -> [(Int, Int)]
-parse = catMaybes . fst . fromJust . runParser (evalStateT (many parse) True)
+parse = catMaybes . fromJust . evalStateT (evalStateT (many parse) True)
   where
     parse :: StateT Bool Parser (Maybe (Int, Int))
     parse = parseMul <|> parseDo <|> parseDont <|> lift parseAnyChar *> parse
@@ -48,35 +48,10 @@ parse = catMaybes . fst . fromJust . runParser (evalStateT (many parse) True)
 
 main = interact $ show . sum . map (uncurry (*)) . parse
 
-newtype Parser a = Parser {runParser :: String -> Maybe (a, String)}
-
-instance Functor Parser where
-    fmap f (Parser p) = Parser $ fmap (mapFst f) . p
-      where
-        mapFst f (x, y) = (f x, y)
-
-instance Applicative Parser where
-    pure x = Parser $ \y -> Just (x, y)
-    (Parser p1) <*> (Parser p2) = Parser $ \x -> do
-        (f, x') <- p1 x
-        (y, x'') <- p2 x'
-        return (f y, x'')
-
-instance Alternative Parser where
-    empty = Parser $ const Nothing
-    (Parser p1) <|> (Parser p2) = Parser $ \x -> p1 x <|> p2 x
-
-instance Monad Parser where
-    return = pure
-    (Parser p1) >>= f = Parser $ \x -> do
-        (y, x') <- p1 x
-        (y', x'') <- runParser (f y) x'
-        return (y', x'')
-
-instance MonadPlus Parser
+type Parser = StateT String Maybe
 
 parseAnyChar :: Parser Char
-parseAnyChar = Parser helper
+parseAnyChar = StateT helper
   where
     helper (x : xs) = Just (x, xs)
     helper _ = Nothing
