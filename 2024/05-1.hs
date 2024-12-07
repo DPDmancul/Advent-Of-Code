@@ -95,10 +95,10 @@ parseUpdate :: String -> Update
 parseUpdate x = read $ '[' : x ++ "]"
 
 isOrdered :: [Rule] -> Update -> Bool
-isOrdered rules = flip evalState [] . foldl helper (state (True,))
-    where
-    helper m x = mapState (\(a, s) -> (a && isValid x s, x : s)) m
-    isValid x s | any ((`elem` rules) . (x,)) s = False
+isOrdered rules = flip evalState [] . foldr helper (state (True,))
+  where
+    helper x = mapState (\(a, s) -> (a && isValid x s, x : s))
+    isValid x s | any ((`elem` rules) . (,x)) s = False
     isValid _ _ = True
 
 takeMiddle :: [Int] -> Int
