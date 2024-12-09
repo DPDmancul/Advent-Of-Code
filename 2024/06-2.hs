@@ -149,10 +149,9 @@ rotateRight West = North
 rotateRight East = South
 
 findNewObstacles :: Status -> [Pos]
-findNewObstacles s@Status{obstacles, guardPos = startGuardPos} =
-    filter cond $ nub $ findAllPos s
+findNewObstacles s@Status{obstacles} = filter cond $ tail $ nub $ findAllPos s
   where
-    cond pos = pos /= startGuardPos && pos `notMember` obstacles && isLoop s{obstacles = insert pos obstacles} emptySet
+    cond pos = isLoop s{obstacles = insert pos obstacles} emptySet
     isLoop s posDirs
         | outside s = False
         | otherwise =
