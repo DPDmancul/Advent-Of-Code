@@ -96,19 +96,45 @@ It doesn't really matter what you choose to use as an obstacle so long as you an
 You need to get the guard stuck in a loop by adding a single new obstruction. How many different positions could you choose for this obstruction?
 -}
 
+-- Set: 12 minutes
+-- HashSet: 4 minutes
+
+import Data.IntSet (IntSet)
+import Data.IntSet qualified as IntSet
 import Data.List (nub)
-import Data.Set (Set, insert, member, notMember)
-import Data.Set qualified as Set
 
 data Direction = North | South | West | East
-    deriving (Eq, Ord)
+    deriving (Eq, Enum)
 
 type Pos = (Int, Int)
+
+newtype HashSet a = HashSet IntSet
+
+class Hashable a where
+    hash :: a -> Int
+
+emptySet :: HashSet a
+emptySet = HashSet IntSet.empty
+
+insert :: (Hashable a) => a -> HashSet a -> HashSet a
+insert x (HashSet s) = HashSet $ IntSet.insert (hash x) s
+
+member :: (Hashable a) => a -> HashSet a -> Bool
+member x (HashSet s) = IntSet.member (hash x) s
+
+notMember :: (Hashable a) => a -> HashSet a -> Bool
+notMember x = not . member x
+
+instance Hashable Pos where
+    hash (x, y) = x * 2 ^ 15 + y
+
+instance Hashable (Pos, Direction) where
+    hash (pos, dir) = 4 * hash pos + fromEnum dir
 
 data Status = Status
     { cols :: Int
     , rows :: Int
-    , obstacles :: Set Pos
+    , obstacles :: HashSet Pos
     , guardPos :: Pos
     , guardDir :: Direction
     }
@@ -126,7 +152,7 @@ findNewObstacles :: Status -> [Pos]
 findNewObstacles s@Status{obstacles, guardPos = startGuardPos} =
     filter cond $ nub $ findAllPos s
   where
-    cond pos = pos /= startGuardPos && pos `notMember` obstacles && isLoop s{obstacles = insert pos obstacles} Set.empty
+    cond pos = pos /= startGuardPos && pos `notMember` obstacles && isLoop s{obstacles = insert pos obstacles} emptySet
     isLoop s posDirs
         | outside s = False
         | otherwise =
@@ -145,7 +171,7 @@ advance (r, c) East = (r, c + 1)
 nextStep :: Status -> Status
 nextStep s@Status{obstacles, guardDir, guardPos} =
     let nextPos = advance guardPos guardDir
-     in if nextPos `elem` obstacles
+     in if nextPos `member` obstacles
             then s{guardDir = rotateRight guardDir}
             else s{guardPos = nextPos}
 
@@ -153,7 +179,7 @@ parse :: String -> Status
 parse x =
     foldr
         helper
-        (Status 0 0 Set.empty (0, 0) North)
+        (Status 0 0 emptySet (0, 0) North)
         [(r, c, char) | (r, line) <- zip [1 ..] (lines x), (c, char) <- zip [1 ..] line]
   where
     helper (r, c, '#') s@Status{obstacles} = helper (r, c, '.') s{obstacles = insert (r, c) obstacles}
