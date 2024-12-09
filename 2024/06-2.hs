@@ -129,7 +129,6 @@ findNewObstacles s@Status{obstacles, guardPos = startGuardPos} =
     cond pos = pos /= startGuardPos && pos `notMember` obstacles && isLoop s{obstacles = insert pos obstacles} Set.empty
     isLoop s posDirs
         | outside s = False
-        | Set.size posDirs > 25000 = True
         | otherwise =
             let posDir = (guardPos s, guardDir s)
              in posDir `member` posDirs || isLoop (nextStep s) (insert posDir posDirs)
