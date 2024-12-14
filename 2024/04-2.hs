@@ -33,7 +33,6 @@ Flip the word search from the instructions back over to the word search side and
 
 
 import Data.Array
-import Distribution.Simple.Command (OptDescr (BoolOpt))
 
 word = "MAS"
 

@@ -45,7 +45,6 @@ Take a look at the little Elf's word search. How many times does XMAS appear?
 -}
 
 import Data.Array
-import Distribution.Simple.Command (OptDescr (BoolOpt))
 
 word = "XMAS"
 
