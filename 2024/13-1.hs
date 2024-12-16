@@ -75,12 +75,12 @@ add (x, y) (x', y') = (x + x', y + y')
 play :: [Game] -> Int
 play = sum . map playGame
   where
-    playGame (Game buttonA@(xA, yA) buttonB@(xB, yB) prize@(x, y)) =
+    playGame (Game (xA, yA) (xB, yB) prize@(x, y)) =
         let
             pressedA = (yB * x - xB * y) `div` (xA * yB - xB * yA)
             pressedB = (xA * y - yA * x) `div` (xA * yB - xB * yA)
          in
-            if foldr add (0, 0) (replicate pressedA buttonA ++ replicate pressedB buttonB) == prize
+            if (pressedA * xA + pressedB * xB, pressedA * yA + pressedB * yB) == prize
                 then 3 * pressedA + pressedB
                 else 0
 
