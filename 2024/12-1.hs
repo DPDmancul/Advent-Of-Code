@@ -88,8 +88,6 @@ So, it has a total price of 1930.
 What is the total price of fencing all regions on your map?
 -}
 
-import Control.Monad
-import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.State.Lazy
 import Data.Array
 import Data.Maybe
