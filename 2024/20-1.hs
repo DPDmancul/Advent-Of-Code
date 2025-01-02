@@ -153,13 +153,13 @@ race = helper Set.empty
     isValid x@(r, c) = x `Set.notMember` obstacles && x `Set.notMember` visited && r >= 0 && r < rows && c >= 0 && c < cols
 
 findCheats :: Track -> [Int]
-findCheats track = helper 2 best
+findCheats track = helper best
  where
   best = fromJust $ race track
-  helper _ [] = []
-  helper n ((r, c) : xs) = map (subtract n) candidatePoses ++ helper (n + 1) xs
+  helper [] = []
+  helper ((r, c) : xs) = candidatePoses ++ helper xs
    where
-    candidatePoses = mapMaybe (`elemIndex` best) [(r + 2, c), (r - 2, c), (r, c + 2), (r, c - 2)]
+    candidatePoses = mapMaybe (`elemIndex` xs) [(r + 2, c), (r - 2, c), (r, c + 2), (r, c - 2)]
 
 main = interact $ show . length . filter (>= 100) . findCheats . parse
  where
